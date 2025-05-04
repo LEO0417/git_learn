@@ -1,0 +1,2 @@
+git config --global user.name "Leo Wang"
+git config --global user.email prompt.leowang@gmail.com
