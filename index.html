@@ -5,3 +5,153 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<body>
+    <div class="container">
+        <h1>待办事项列表</h1>
+        <div class="todo-input">
+            <input type="text" id="taskInput" placeholder="请输入新的待办事项...">
+            <button id="addBtn">添加</button>
+        </div>
+        <ul id="todoList"></ul>
+    </div>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .todo-input {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #taskInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+        #addBtn {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #addBtn:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        li button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        li button:hover {
+            background-color: #d32f2f;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const taskInput = document.getElementById('taskInput');
+            const addBtn = document.getElementById('addBtn');
+            const todoList = document.getElementById('todoList');
+            
+            // 从本地存储加载待办事项
+            let todos = JSON.parse(localStorage.getItem('todos')) || [];
+            
+            // 渲染待办事项列表
+            function renderTodos() {
+                todoList.innerHTML = '';
+                todos.forEach((todo, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="${todo.completed ? 'completed' : ''}">${todo.text}</span>
+                        <div>
+                            <button class="toggle-btn">${todo.completed ? '取消完成' : '完成'}</button>
+                            <button class="delete-btn">删除</button>
+                        </div>
+                    `;
+                    
+                    // 添加完成/取消完成事件
+                    li.querySelector('.toggle-btn').addEventListener('click', () => {
+                        todos[index].completed = !todos[index].completed;
+                        saveTodos();
+                        renderTodos();
+                    });
+                    
+                    // 添加删除事件
+                    li.querySelector('.delete-btn').addEventListener('click', () => {
+                        todos.splice(index, 1);
+                        saveTodos();
+                        renderTodos();
+                    });
+                    
+                    todoList.appendChild(li);
+                });
+            }
+            
+            // 保存待办事项到本地存储
+            function saveTodos() {
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
+            
+            // 添加新待办事项
+            addBtn.addEventListener('click', () => {
+                const text = taskInput.value.trim();
+                if (text) {
+                    todos.push({ text, completed: false });
+                    taskInput.value = '';
+                    saveTodos();
+                    renderTodos();
+                }
+            });
+            
+            // 按回车键添加待办事项
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addBtn.click();
+                }
+            });
+            
+            // 初始渲染
+            renderTodos();
+        });
+    </script>
+</body>
